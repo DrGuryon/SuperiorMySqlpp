@@ -11,6 +11,7 @@
 
 
 #include <superior_mysqlpp/logging.hpp>
+#include <superior_mysqlpp/connection_config.hpp>
 #include <superior_mysqlpp/prepared_statement_fwd.hpp>
 #include <superior_mysqlpp/dynamic_prepared_statement_fwd.hpp>
 #include <superior_mysqlpp/low_level/dbdriver.hpp>
@@ -88,6 +89,35 @@ namespace SuperiorMySqlpp
             driver.connect(nullptr, user.c_str(), password.c_str(), database.c_str(), 0, socketPath.c_str());
         }
 
+        template<typename... OptionTuples>
+        Connection(ConnectionConfig config,
+                   std::tuple<OptionTuples...> optionTuples=std::make_tuple(),
+                   Loggers::SharedPointer_t loggerPtr=DefaultLogger::getLoggerPtr())
+            : driver{std::move(loggerPtr)}
+        {
+            if (config.hasSsl()) {
+
+                const SslConfiguration sslConfig = config.getSslConfig();
+
+                driver.setSsl(sslConfig.keyPath, sslConfig.certificatePath, sslConfig.certificationAuthorityPath,
+                          sslConfig.trustedCertificateDirPath, sslConfig.allowableCiphers);
+            }
+
+            setOptions(std::move(optionTuples));
+
+            const std::string& database = config.getDatabase(), user = config.getUser(), password = config.getPassword(), target = config.getTarget();
+
+            if (config.isUsingSocket()) {
+
+                driver.connect(nullptr, user.c_str(), password.c_str(), database.c_str(), 0, target.c_str());
+
+            } else {
+
+                std::uint16_t port = config.getTcpPort();
+                driver.connect(target.c_str(), user.c_str(), password.c_str(), database.c_str(), port, nullptr);
+            }
+        }
+
 
         ~Connection() = default;
 
@@ -102,6 +132,7 @@ namespace SuperiorMySqlpp
         {
             return driver.getLoggerPtr();
         }
+
 
         const auto& getLoggerPtr() const
         {
