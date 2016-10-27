@@ -95,26 +95,23 @@ namespace SuperiorMySqlpp
                    Loggers::SharedPointer_t loggerPtr=DefaultLogger::getLoggerPtr())
             : driver{std::move(loggerPtr)}
         {
-            if (config.hasSsl()) {
+            if (config.hasSsl) {
 
-                const SslConfiguration sslConfig = config.getSslConfig();
+                const SslConfiguration* sslConfig = config.sslConfig;
 
-                driver.setSsl(sslConfig.keyPath, sslConfig.certificatePath, sslConfig.certificationAuthorityPath,
-                          sslConfig.trustedCertificateDirPath, sslConfig.allowableCiphers);
+                driver.setSsl((*sslConfig).keyPath, (*sslConfig).certificatePath, (*sslConfig).certificationAuthorityPath,
+                          (*sslConfig).trustedCertificateDirPath, (*sslConfig).allowableCiphers);
             }
 
             setOptions(std::move(optionTuples));
 
-            const std::string& database = config.getDatabase(), user = config.getUser(), password = config.getPassword(), target = config.getTarget();
+            if (config.usingSocket) {
 
-            if (config.isUsingSocket()) {
-
-                driver.connect(nullptr, user.c_str(), password.c_str(), database.c_str(), 0, target.c_str());
+                driver.connect(nullptr, config.user.c_str(), config.password.c_str(), config.database.c_str(), 0, config.target.c_str());
 
             } else {
 
-                std::uint16_t port = config.getTcpPort();
-                driver.connect(target.c_str(), user.c_str(), password.c_str(), database.c_str(), port, nullptr);
+                driver.connect(config.target.c_str(), config.user.c_str(), config.password.c_str(), config.database.c_str(), config.port, nullptr);
             }
         }
 
