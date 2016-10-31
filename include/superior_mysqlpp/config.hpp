@@ -19,11 +19,11 @@ namespace SuperiorMySqlpp
 
     class ConnectionConfig {
         private:
-            ConnectionConfig(const struct SslConfiguration& _sslConfig, const std::string& _database, const std::string& _user, const std::string& _password,
+            ConnectionConfig(const bool _hasSsl, const struct SslConfiguration& _sslConfig, const std::string& _database, const std::string& _user, const std::string& _password,
                     const std::string& _target, const std::uint16_t _port=0) : 
-                hasSsl{true},
-                usingSocket{_port == 0},
                 sslConfig{_sslConfig},
+                hasSsl{_hasSsl},
+                usingSocket{_port == 0},
                 database{_database},
                 user{_user},
                 password{_password},
@@ -31,15 +31,14 @@ namespace SuperiorMySqlpp
                 port{_port}
             { }
 
+            ConnectionConfig(const struct SslConfiguration& _sslConfig, const std::string& _database, const std::string& _user, const std::string& _password,
+                    const std::string& _target, const std::uint16_t _port=0) : 
+                ConnectionConfig{true, _sslConfig, _database, _user, _password, _target, _port}
+            { }
+
             ConnectionConfig(const std::string& _database, const std::string& _user, const std::string& _password,
                     const std::string& _target, const std::uint16_t _port=0) :
-                hasSsl{false},
-                usingSocket{_port == 0},
-                database{_database},
-                user{_user},
-                password{_password},
-                target{_target},
-                port{_port}
+                ConnectionConfig{false, SslConfiguration{}, _database, _user, _password, _target, _port}
             { }
 
         public:
@@ -53,7 +52,7 @@ namespace SuperiorMySqlpp
             const bool usingSocket = false;
             const bool hasSsl = false;
 
-            const struct SslConfiguration sslConfig{};
+            const struct SslConfiguration sslConfig;
 
             static ConnectionConfig getTcpConnectionConfig(const SslConfiguration& sslConfig, const std::string& database,
                     const std::string& user, const std::string& password, const std::string& host="localhost", std::uint16_t port=3306)
