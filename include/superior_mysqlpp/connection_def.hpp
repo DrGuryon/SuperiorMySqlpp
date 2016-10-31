@@ -11,27 +11,17 @@
 
 
 #include <superior_mysqlpp/logging.hpp>
-#include <superior_mysqlpp/connection_config.hpp>
 #include <superior_mysqlpp/prepared_statement_fwd.hpp>
 #include <superior_mysqlpp/dynamic_prepared_statement_fwd.hpp>
 #include <superior_mysqlpp/low_level/dbdriver.hpp>
 #include <superior_mysqlpp/types/tags.hpp>
 #include <superior_mysqlpp/types/optional.hpp>
+#include <superior_mysqlpp/config.hpp>
 
 
 namespace SuperiorMySqlpp
 {
     class Query;
-
-    struct SslConfiguration
-    {
-        const char* keyPath = nullptr;
-        const char* certificatePath = nullptr;
-        const char* certificationAuthorityPath = nullptr;
-        const char* trustedCertificateDirPath = nullptr;
-        const char* allowableCiphers = nullptr;
-    };
-
 
     using ConnectionOptions = LowLevel::DBDriver::DriverOptions;
 
@@ -97,10 +87,10 @@ namespace SuperiorMySqlpp
         {
             if (config.hasSsl) {
 
-                const SslConfiguration* sslConfig = config.sslConfig;
+                const SslConfiguration& sslConfig = config.sslConfig;
 
-                driver.setSsl((*sslConfig).keyPath, (*sslConfig).certificatePath, (*sslConfig).certificationAuthorityPath,
-                          (*sslConfig).trustedCertificateDirPath, (*sslConfig).allowableCiphers);
+                driver.setSsl(sslConfig.keyPath, sslConfig.certificatePath, sslConfig.certificationAuthorityPath,
+                          sslConfig.trustedCertificateDirPath, sslConfig.allowableCiphers);
             }
 
             setOptions(std::move(optionTuples));

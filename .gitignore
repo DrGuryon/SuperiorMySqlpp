@@ -12,6 +12,8 @@ debian/
 *.d
 *.o
 
+*.swp
+
 odr_program
 tester
 core
