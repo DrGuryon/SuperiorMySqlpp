@@ -51,6 +51,10 @@ odr_object_files :=$(odr_source_files:.cpp=.o)
 odr_dependency_files :=$(odr_object_files:.o=.d)
 
 source_files :=$(sort $(shell find ./ -name "*.cpp" -not -name "*.odr.cpp"))
+
+# Uncomment this line to test connection only
+#source_files :=$(sort $(shell find ./ -name "*.cpp" -not -name "*.odr.cpp" | egrep "main|connection.cpp"))
+
 object_files :=$(source_files:.cpp=.o)
 dependency_files :=$(object_files:.o=.d)
 

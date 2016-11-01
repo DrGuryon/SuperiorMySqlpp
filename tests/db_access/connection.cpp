@@ -125,6 +125,28 @@ go_bandit([](){
         it("can use SSL", [&](){
             Connection connection{SslConfiguration{}, s.database, s.user, s.password, s.host, s.port};
         });
+
+        it("can use TCP ConnectionConfig without SSL", [&](){
+            ConnectionConfig tcpConfig = ConnectionConfig::getTcpConnectionConfig(s.database, s.user, s.password, s.host, s.port);
+
+            Connection connection{tcpConfig};
+        });
+        it("can use TCP ConnectionConfig with SSL", [&](){
+            ConnectionConfig tcpConfig = ConnectionConfig::getSslTcpConnectionConfig(SslConfiguration{}, s.database, s.user, s.password, s.host, s.port);
+
+            Connection connection{tcpConfig};
+        });
+        it("can use socketed ConnectionConfig without SSL", [&](){
+            ConnectionConfig socketConfig = ConnectionConfig::getSocketConnectionConfig(s.database, s.user, s.password, s.socket);
+
+            Connection connection{socketConfig};
+        });
+
+        it("can use socketed ConnectionConfig with SSL", [&](){
+            ConnectionConfig socketConfig = ConnectionConfig::getSslSocketConnectionConfig(SslConfiguration{}, s.database, s.user, s.password, s.socket);
+
+            Connection connection{socketConfig};
+        });
     });
 });
 
